@@ -1,6 +1,15 @@
 <template>
   <div>
-    <menuPublic></menuPublic>
+    <nav>
+        <a href="/peguy/appliVegan/index.php" class="nav-logo" alt="logoSite"><img class="imgLogo" src="/peguy/appliVegan/img/logoLong.png"></a>
+        <ul class="navlink">
+            <li @click="formulaire('ajouter')"><span>Accueil</span></li>
+            <li><a href="/peguy/appliVegan/magasin.php">Magasins</a></li>
+            <li><a href="/peguy/appliVegan/contact.php">Contact</a></li>
+            <li><a href="/peguy/appliVegan/connexionUtilisateur-Form.php" class="boutonLogin">Se connecter</a></li>
+            <li><a href="/peguy/appliVegan/creerCompteUtilisateur-Form.php" class="boutonLogin">Créer un compte</a></li>
+        </ul>
+    </nav>
     <button @click="formulaire('ajouter')">
       <span>Ajouter Gare</span>
     </button>
@@ -14,7 +23,6 @@
 </template>
 
 <script>
-import menuPublic from './components/menu.vue'
 import gareComposent from './components/gare.vue'
 import ajouterGare from './components/ajouter.vue'
 import modifierGare from './components/modifier.vue'
@@ -22,7 +30,6 @@ import modifierGare from './components/modifier.vue'
 export default {
   name: 'App',
   components: {
-    menuPublic,
     gareComposent,
     ajouterGare,
     modifierGare
