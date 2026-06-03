@@ -1,60 +1,59 @@
 <template>
     <div class="panier">
-        <button class="btn-retour" @click="$emit('naviguer', 'boutique')">← Continuer mes achats</button>
+        <div class="entete">
+            <h1>Mon panier</h1>
+            <button class="btn-retour" @click="$emit('naviguer', 'boutique')">← Continuer mes achats</button>
+        </div>
 
-        <h1>🛒 Mon Panier</h1>
-
+        <!-- Panier vide -->
         <div v-if="panier.length === 0" class="vide">
             <span>🛒</span>
             <p>Votre panier est vide.</p>
-            <button class="btn-primary" @click="$emit('naviguer', 'boutique')">Découvrir nos jus</button>
+            <button class="btn-vert" @click="$emit('naviguer', 'boutique')">Voir nos jus</button>
         </div>
 
-        <div v-else>
-            <div class="liste-articles">
+        <div v-else class="contenu">
+            <!-- Liste des articles -->
+            <div class="liste">
                 <div class="article" v-for="(article, index) in panier" :key="index">
-                    <!-- Aperçu miniature -->
-                    <div class="mini-bouteille" :style="{ background: article.emballage.colorisEmb }">
-                        <img v-if="article.emballage.imagePreview" :src="article.emballage.imagePreview" class="mini-img" />
-                        <span class="mini-emoji">{{ emojiJus(article.jus.nomJus) }}</span>
-                        <span v-if="article.emballage.texteEmb" class="mini-texte">{{ article.emballage.texteEmb }}</span>
+
+                    <!-- Mini brique -->
+                    <div class="mini-brique" :style="{ background: article.emballage.colorisEmb }">
+                        <img v-if="article.emballage.imagePreview" :src="article.emballage.imagePreview" class="mini-img" alt="" />
+                        <span>{{ emojiJus(article.jus.nomJus) }}</span>
                     </div>
 
                     <!-- Infos -->
-                    <div class="article-info">
-                        <h3>{{ article.jus.nomJus }}</h3>
-                        <p class="emb-detail">
-                            {{ article.emballage.nomEmb }} · 
-                            <span class="couleur-dot" :style="{ background: article.emballage.colorisEmb }"></span>
-                            {{ article.emballage.colorisEmb }}
-                        </p>
-                        <p v-if="article.emballage.texteEmb" class="texte-perso">💬 "{{ article.emballage.texteEmb }}"</p>
-                        <p v-if="article.emballage.imagePreview" class="texte-perso">🖼️ Image personnalisée ajoutée</p>
+                    <div class="article-infos">
+                        <strong>{{ article.jus.nomJus }}</strong>
+                        <span>{{ article.emballage.nomEmb }}</span>
+                        <span v-if="article.emballage.texteEmb" class="texte-perso">"{{ article.emballage.texteEmb }}"</span>
+                        <span v-if="article.emballage.imagePreview" class="texte-perso">🖼️ Image personnalisée</span>
                     </div>
 
-                    <!-- Quantité & Prix -->
-                    <div class="article-qte">
-                        <div class="qte-controls">
-                            <button @click="diminuerQte(index)">−</button>
-                            <span>{{ article.qte }}</span>
-                            <button @click="augmenterQte(index)">+</button>
-                        </div>
-                        <div class="prix-article">{{ calculerPrixArticle(article) }} €</div>
+                    <!-- Quantité -->
+                    <div class="qte">
+                        <button @click="diminuerQte(index)">−</button>
+                        <span>{{ article.qte }}</span>
+                        <button @click="augmenterQte(index)">+</button>
                     </div>
+
+                    <!-- Prix -->
+                    <div class="prix-article">{{ calculerPrix(article) }} €</div>
 
                     <!-- Supprimer -->
-                    <button class="btn-suppr" @click="$emit('supprimerArticle', index)" title="Supprimer">✕</button>
+                    <button class="btn-suppr" @click="$emit('supprimerArticle', index)">✕</button>
                 </div>
             </div>
 
             <!-- Récap total -->
-            <div class="recap-total">
-                <div class="ligne">Sous-total ({{ nbArticles }} article{{ nbArticles > 1 ? 's' : '' }}) <strong>{{ sousTotal }} €</strong></div>
-                <div class="ligne">Livraison <strong>Offerte 🎉</strong></div>
-                <div class="ligne total">Total <strong>{{ sousTotal }} €</strong></div>
-                <button class="btn-commander" @click="commander">
-                    ✅ Passer la commande
-                </button>
+            <div class="recap">
+                <div class="recap-ligne">Sous-total <strong>{{ sousTotal }} €</strong></div>
+                <div class="recap-ligne">Livraison  <strong>Offerte 🎉</strong></div>
+                <div class="recap-ligne total">Total <strong>{{ sousTotal }} €</strong></div>
+
+                <button class="btn-commander" @click="commander">✅ Passer la commande</button>
+
                 <p v-if="!client" class="msg-connexion">
                     Vous devez être <span @click="$emit('naviguer', 'connexion')">connecté</span> pour commander.
                 </p>
@@ -67,20 +66,11 @@
 export default {
     name: 'PagePanier',
     props: {
-        panier: {
-            type: Array,
-            required: true
-        },
-        client: {
-            type: Object,
-            default: null
-        }
+        panier:  { type: Array,  required: true },
+        client:  { type: Object, default: null }
     },
     emits: ['naviguer', 'supprimerArticle', 'mettreAJourQte', 'commander'],
     computed: {
-        nbArticles() {
-            return this.panier.reduce((s, a) => s + a.qte, 0)
-        },
         sousTotal() {
             return this.panier.reduce((s, a) => {
                 return s + (parseFloat(a.jus.prixUnitaire) + parseFloat(a.emballage.prixEmb)) * a.qte
@@ -88,16 +78,21 @@ export default {
         }
     },
     methods: {
-        calculerPrixArticle(article) {
+        calculerPrix(article) {
             return ((parseFloat(article.jus.prixUnitaire) + parseFloat(article.emballage.prixEmb)) * article.qte).toFixed(2)
         },
         emojiJus(nom) {
             const n = (nom || '').toLowerCase()
-            if (n.includes('orange')) return '🍊'
-            if (n.includes('mangue')) return '🥭'
-            if (n.includes('ananas')) return '🍍'
-            if (n.includes('fraise')) return '🍓'
+            if (n.includes('orange'))      return '🍊'
+            if (n.includes('citron'))      return '🍋'
+            if (n.includes('mangue'))      return '🥭'
+            if (n.includes('ananas'))      return '🍍'
+            if (n.includes('fraise'))      return '🍓'
+            if (n.includes('myrtille'))    return '🫐'
             if (n.includes('pastèque') || n.includes('pasteque')) return '🍉'
+            if (n.includes('pomme'))       return '🍎'
+            if (n.includes('poire'))       return '🍐'
+            if (n.includes('pêche') || n.includes('peche')) return '🍑'
             return '🥤'
         },
         diminuerQte(index) {
@@ -111,10 +106,7 @@ export default {
             this.$emit('mettreAJourQte', { index, qte: this.panier[index].qte + 1 })
         },
         commander() {
-            if (!this.client) {
-                this.$emit('naviguer', 'connexion')
-                return
-            }
+            if (!this.client) { this.$emit('naviguer', 'connexion'); return }
             this.$emit('commander')
         }
     }
@@ -122,208 +114,109 @@ export default {
 </script>
 
 <style scoped>
-.panier {
-    padding: 2rem 3rem;
-    min-height: 100vh;
-    background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
-    color: #f3f3f3;
-    max-width: 900px;
-    margin: 0 auto;
+.panier { padding: 2rem; max-width: 900px; margin: 0 auto; }
+
+.entete {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 1.5rem;
 }
+.entete h1 { font-size: 1.6rem; font-weight: 700; }
 
 .btn-retour {
-    background: none;
-    border: 1px solid rgba(255,255,255,0.2);
-    color: #aaa;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-bottom: 1.5rem;
-    transition: color 0.2s, border-color 0.2s;
+    background: none; border: 1px solid var(--bordure);
+    color: var(--texte-doux); padding: 0.4rem 0.9rem;
+    border-radius: 8px; cursor: pointer; font-family: inherit;
+    font-size: 0.9rem; transition: border-color 0.15s, color 0.15s;
 }
-.btn-retour:hover { color: #FF6B35; border-color: #FF6B35; }
+.btn-retour:hover { border-color: #666; color: var(--texte); }
 
-h1 { font-size: 2rem; margin-bottom: 2rem; }
-
-/* PANIER VIDE */
-.vide {
-    text-align: center;
-    padding: 4rem;
-    color: #aaa;
+/* Panier vide */
+.vide { text-align: center; padding: 5rem 2rem; color: var(--texte-doux); }
+.vide span { font-size: 4rem; display: block; margin-bottom: 1rem; }
+.vide p { font-size: 1.1rem; margin-bottom: 1.5rem; }
+.btn-vert {
+    background: var(--vert); border: none; color: #fff;
+    padding: 0.7rem 1.6rem; border-radius: var(--radius);
+    font-size: 0.95rem; font-weight: 600; font-family: inherit; cursor: pointer;
 }
-.vide span { font-size: 5rem; display: block; margin-bottom: 1rem; }
-.vide p { font-size: 1.2rem; margin-bottom: 1.5rem; }
-.btn-primary {
-    background: linear-gradient(135deg, #FF6B35, #f7931e);
-    color: #fff;
-    border: none;
-    padding: 0.9rem 2rem;
-    border-radius: 30px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-.btn-primary:hover { transform: translateY(-2px); }
+.btn-vert:hover { background: var(--vert-hover); }
 
-/* LISTE ARTICLES */
-.liste-articles { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+/* Layout articles + recap */
+.contenu { display: grid; grid-template-columns: 1fr 280px; gap: 1.5rem; align-items: start; }
+
+/* Liste */
+.liste { display: flex; flex-direction: column; gap: 0.8rem; }
 
 .article {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px;
-    padding: 1.2rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    transition: border-color 0.2s;
+    background: var(--carte); border: 1px solid var(--bordure);
+    border-radius: var(--radius); padding: 1rem 1.2rem;
+    display: flex; align-items: center; gap: 1rem;
+    transition: border-color 0.15s;
 }
-.article:hover { border-color: rgba(255,107,53,0.4); }
+.article:hover { border-color: #4a4a4a; }
 
-/* Mini bouteille */
-.mini-bouteille {
-    width: 64px;
-    height: 100px;
-    border-radius: 24px 24px 14px 14px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+/* Mini brique */
+.mini-brique {
+    width: 48px; height: 64px;
+    border-radius: 10px 10px 6px 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; flex-shrink: 0;
+    position: relative; overflow: hidden;
 }
-.mini-img {
-    position: absolute;
-    width: 100%; height: 100%;
-    object-fit: cover;
-    opacity: 0.45;
-}
-.mini-emoji { font-size: 1.6rem; z-index: 1; }
-.mini-texte {
-    z-index: 1;
-    font-size: 0.45rem;
-    color: #fff;
-    text-align: center;
-    padding: 0 4px;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-    word-break: break-word;
-    max-width: 58px;
-}
+.mini-img { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0.35; }
 
-/* Infos article */
-.article-info { flex: 1; }
-.article-info h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
-.emb-detail {
-    font-size: 0.85rem;
-    color: #aaa;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-bottom: 0.3rem;
+/* Infos */
+.article-infos {
+    flex: 1; display: flex; flex-direction: column; gap: 0.2rem;
 }
-.couleur-dot {
-    width: 12px; height: 12px;
-    border-radius: 50%;
-    display: inline-block;
-    border: 1px solid rgba(255,255,255,0.3);
-}
-.texte-perso { font-size: 0.82rem; color: #aaa; font-style: italic; }
+.article-infos strong { font-size: 0.95rem; }
+.article-infos span { font-size: 0.82rem; color: var(--texte-doux); }
+.texte-perso { font-style: italic; }
 
-/* Quantité & prix */
-.article-qte {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    min-width: 90px;
+/* Quantité */
+.qte { display: flex; align-items: center; gap: 0.5rem; }
+.qte button {
+    background: var(--fond); border: 1px solid var(--bordure);
+    color: var(--texte); width: 28px; height: 28px;
+    border-radius: 6px; font-size: 0.95rem; cursor: pointer;
+    font-family: inherit; transition: background 0.15s;
 }
-.qte-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-}
-.qte-controls button {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: #fff;
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.2s;
-    line-height: 1;
-}
-.qte-controls button:hover { background: #FF6B35; border-color: #FF6B35; }
-.qte-controls span { font-size: 1rem; font-weight: 700; min-width: 20px; text-align: center; }
-.prix-article { color: #FF6B35; font-weight: 700; font-size: 1rem; }
+.qte button:hover { background: var(--bordure); }
+.qte span { font-size: 0.95rem; font-weight: 700; min-width: 20px; text-align: center; }
+
+/* Prix */
+.prix-article { color: var(--vert); font-weight: 700; min-width: 60px; text-align: right; }
 
 /* Supprimer */
 .btn-suppr {
-    background: none;
-    border: 1px solid rgba(255,107,107,0.3);
-    color: #ff6b6b;
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: background 0.2s;
-    flex-shrink: 0;
+    background: none; border: 1px solid #c0392b; color: #c0392b;
+    width: 28px; height: 28px; border-radius: 6px; cursor: pointer;
+    font-size: 0.8rem; flex-shrink: 0; transition: background 0.15s;
 }
-.btn-suppr:hover { background: rgba(255,107,107,0.15); }
+.btn-suppr:hover { background: rgba(192,57,43,0.15); }
 
-/* RÉCAP TOTAL */
-.recap-total {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px;
-    padding: 1.5rem 2rem;
-    max-width: 400px;
-    margin-left: auto;
+/* Récap */
+.recap {
+    background: var(--carte); border: 1px solid var(--bordure);
+    border-radius: var(--radius); padding: 1.2rem;
+    position: sticky; top: 80px;
 }
-.ligne {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.4rem 0;
-    font-size: 0.95rem;
-    color: #ccc;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+.recap-ligne {
+    display: flex; justify-content: space-between;
+    padding: 0.4rem 0; font-size: 0.9rem; color: var(--texte-doux);
+    border-bottom: 1px solid var(--bordure);
 }
-.ligne:last-of-type { border-bottom: none; }
-.ligne.total {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #fff;
-    margin-top: 0.4rem;
-}
+.recap-ligne:last-of-type { border-bottom: none; }
+.recap-ligne.total { color: var(--texte); font-size: 1rem; font-weight: 700; }
+
 .btn-commander {
-    width: 100%;
-    background: linear-gradient(135deg, #FF6B35, #f7931e);
-    color: #fff;
-    border: none;
-    padding: 0.9rem;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 1.2rem;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 20px rgba(255,107,53,0.4);
+    width: 100%; background: var(--vert); border: none; color: #fff;
+    padding: 0.8rem; border-radius: var(--radius); font-size: 0.95rem;
+    font-weight: 600; font-family: inherit; cursor: pointer;
+    margin-top: 1rem; transition: background 0.15s;
 }
-.btn-commander:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,107,53,0.5); }
+.btn-commander:hover { background: var(--vert-hover); }
 
-.msg-connexion {
-    text-align: center;
-    color: #aaa;
-    font-size: 0.85rem;
-    margin-top: 0.7rem;
-}
-.msg-connexion span {
-    color: #FF6B35;
-    cursor: pointer;
-    text-decoration: underline;
-}
+.msg-connexion { text-align: center; color: var(--texte-doux); font-size: 0.83rem; margin-top: 0.7rem; }
+.msg-connexion span { color: var(--vert); cursor: pointer; text-decoration: underline; }
 </style>

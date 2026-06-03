@@ -1,26 +1,29 @@
 <template>
     <div class="boutique">
-        <h1>🛒 Nos Jus Frais</h1>
-        <p class="sous-titre">Choisissez votre jus et personnalisez votre emballage</p>
+        <div class="entete">
+            <h1>Nos jus frais</h1>
+            <p>Cliquez sur un jus pour le personnaliser</p>
+        </div>
 
-        <div v-if="chargement" class="chargement">⏳ Chargement des produits...</div>
+        <div v-if="chargement" class="message">Chargement…</div>
+        <div v-else-if="erreur" class="message erreur">{{ erreur }}</div>
 
-        <div v-else-if="erreur" class="erreur">❌ {{ erreur }}</div>
-
-        <div v-else class="liste-jus">
+        <div v-else class="grille">
             <div
                 class="carte-jus"
                 v-for="jus in listJus"
                 :key="jus.idJus"
-                @click="selectionnerJus(jus)"
+                @click="$emit('selectionnerJus', jus)"
             >
-                <div class="jus-emoji">{{ emojiJus(jus.nomJus) }}</div>
-                <div class="jus-info">
+                <div class="emoji">{{ emojiJus(jus.nomJus) }}</div>
+                <div class="infos">
                     <h3>{{ jus.nomJus }}</h3>
-                    <p class="description">{{ jus.description }}</p>
-                    <div class="prix-badge">{{ jus.prixUnitaire }} €</div>
+                    <p>{{ jus.description }}</p>
                 </div>
-                <button class="btn-commander">Personnaliser →</button>
+                <div class="bas-carte">
+                    <span class="prix">{{ jus.prixUnitaire }} €</span>
+                    <button class="btn-choisir">Personnaliser →</button>
+                </div>
             </div>
         </div>
     </div>
@@ -42,136 +45,103 @@ export default {
             fetch('http://localhost:3000/jus')
                 .then(res => res.json())
                 .then(data => {
-                    if (data[0] === true) {
-                        this.listJus = data[1]
-                    } else {
-                        this.erreur = 'Impossible de charger les produits.'
-                    }
+                    if (data[0] === true) { this.listJus = data[1] }
+                    else { this.erreur = 'Impossible de charger les produits.' }
                     this.chargement = false
                 })
-                .catch(() => {
-                    this.erreur = 'Erreur de connexion au serveur.'
-                    this.chargement = false
-                })
-        },
-        selectionnerJus(jus) {
-            this.$emit('selectionnerJus', jus)
+                .catch(() => { this.erreur = 'Erreur de connexion au serveur.'; this.chargement = false })
         },
         emojiJus(nom) {
             const n = nom.toLowerCase()
-            if (n.includes('orange')) return '🍊'
-            if (n.includes('mangue')) return '🥭'
-            if (n.includes('ananas')) return '🍍'
-            if (n.includes('fraise')) return '🍓'
+            if (n.includes('orange'))      return '🍊'
+            if (n.includes('citron'))      return '🍋'
+            if (n.includes('mangue'))      return '🥭'
+            if (n.includes('ananas'))      return '🍍'
+            if (n.includes('fraise'))      return '🍓'
+            if (n.includes('framboise'))   return '🍇'
+            if (n.includes('myrtille'))    return '🫐'
             if (n.includes('pastèque') || n.includes('pasteque')) return '🍉'
-            if (n.includes('citron')) return '🍋'
-            if (n.includes('pomme')) return '🍎'
+            if (n.includes('pomme'))       return '🍎'
+            if (n.includes('poire'))       return '🍐'
+            if (n.includes('pêche') || n.includes('peche')) return '🍑'
+            if (n.includes('pamplemousse')) return '🍊'
             return '🥤'
         }
     },
-    mounted() {
-        this.chargerJus()
-    }
+    mounted() { this.chargerJus() }
 }
 </script>
 
 <style scoped>
-.boutique {
-    padding: 3rem 4rem;
-    min-height: 100vh;
-    background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
-    color: #f3f3f3;
-}
+.boutique { padding: 2rem; max-width: 1100px; margin: 0 auto; }
 
-.boutique h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-}
+.entete { margin-bottom: 1.5rem; }
+.entete h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.3rem; }
+.entete p  { color: var(--texte-doux); font-size: 0.95rem; }
 
-.sous-titre {
-    color: #aaa;
-    margin-bottom: 2.5rem;
-    font-size: 1.05rem;
-}
+.message { padding: 3rem; text-align: center; color: var(--texte-doux); }
+.message.erreur { color: #e74c3c; }
 
-.chargement, .erreur {
-    text-align: center;
-    padding: 3rem;
-    font-size: 1.1rem;
-    color: #aaa;
-}
-
-.erreur { color: #ff6b6b; }
-
-.liste-jus {
+/* Grille de cartes */
+.grille {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-}
-
-.carte-jus {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px;
-    padding: 1.5rem;
-    cursor: pointer;
-    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-    display: flex;
-    flex-direction: column;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1rem;
 }
 
-.carte-jus:hover {
-    transform: translateY(-4px);
-    border-color: #FF6B35;
-    box-shadow: 0 8px 30px rgba(255, 107, 53, 0.2);
-}
-
-.jus-emoji {
-    font-size: 4rem;
-    text-align: center;
-}
-
-.jus-info h3 {
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: #FF6B35;
-}
-
-.description {
-    color: #ccc;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    margin-bottom: 0.8rem;
-}
-
-.prix-badge {
-    display: inline-block;
-    background: rgba(255, 107, 53, 0.2);
-    color: #FF6B35;
-    border: 1px solid #FF6B35;
-    padding: 0.25rem 0.8rem;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 1rem;
-}
-
-.btn-commander {
-    background: linear-gradient(135deg, #FF6B35, #f7931e);
-    color: #fff;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
-    font-size: 0.95rem;
-    font-weight: 600;
+.carte-jus {
+    background: var(--carte);
+    border: 1px solid var(--bordure);
+    border-radius: var(--radius);
+    padding: 1.5rem;
     cursor: pointer;
-    transition: opacity 0.2s;
-    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    transition: border-color 0.15s, transform 0.15s;
+}
+.carte-jus:hover {
+    border-color: var(--vert);
+    transform: translateY(-2px);
 }
 
-.btn-commander:hover {
-    opacity: 0.9;
+.emoji { font-size: 2.5rem; }
+
+.infos h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
 }
+.infos p {
+    color: var(--texte-doux);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.bas-carte {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--bordure);
+}
+.prix {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--vert);
+}
+.btn-choisir {
+    background: var(--vert);
+    border: none;
+    color: #fff;
+    padding: 0.4rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.btn-choisir:hover { background: var(--vert-hover); }
 </style>

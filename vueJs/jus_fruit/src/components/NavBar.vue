@@ -1,18 +1,36 @@
 <template>
     <nav>
-        <div class="nav-logo" @click="$emit('naviguer', 'accueil')">
-            🍊 <span class="logo-text">JusFruit</span>
+        <!-- Logo -->
+        <div class="logo" @click="$emit('naviguer', 'accueil')">
+            🍊 <span>JusFruit</span>
         </div>
-        <ul class="navlink">
-            <li @click="$emit('naviguer', 'accueil')"><span>Accueil</span></li>
-            <li @click="$emit('naviguer', 'boutique')"><span>Boutique</span></li>
-            <li v-if="client" @click="$emit('naviguer', 'mesCommandes')"><span>Mes commandes</span></li>
-            <li v-if="!client" @click="$emit('naviguer', 'connexion')" class="boutonLogin">Se connecter</li>
-            <li v-if="!client" @click="$emit('naviguer', 'inscription')" class="boutonLogin">Créer un compte</li>
-            <li v-if="client" class="boutonLogin bouton-compte" @click="$emit('deconnexion')">
-                👤 {{ client.prenomClient }} — Déconnexion
-            </li>
+
+        <!-- Liens -->
+        <ul class="liens">
+            <li @click="$emit('naviguer', 'accueil')">Accueil</li>
+            <li @click="$emit('naviguer', 'boutique')">Boutique</li>
+            <li v-if="client" @click="$emit('naviguer', 'mesCommandes')">Mes commandes</li>
         </ul>
+
+        <!-- Droite : panier + compte -->
+        <div class="actions">
+            <!-- Panier -->
+            <button class="btn-panier" @click="$emit('naviguer', 'panier')">
+                🛒 Panier
+                <span v-if="nbPanier > 0" class="badge">{{ nbPanier }}</span>
+            </button>
+
+            <!-- Connecté -->
+            <button v-if="client" class="btn-compte" @click="$emit('deconnexion')">
+                👤 {{ client.prenomClient }} — Déconnexion
+            </button>
+
+            <!-- Pas connecté -->
+            <template v-else>
+                <button class="btn-outline" @click="$emit('naviguer', 'connexion')">Se connecter</button>
+                <button class="btn-vert"    @click="$emit('naviguer', 'inscription')">Créer un compte</button>
+            </template>
+        </div>
     </nav>
 </template>
 
@@ -20,10 +38,8 @@
 export default {
     name: 'NavBar',
     props: {
-        client: {
-            type: Object,
-            default: null
-        }
+        client:    { type: Object,  default: null },
+        nbPanier:  { type: Number,  default: 0 }
     },
     emits: ['naviguer', 'deconnexion']
 }
@@ -33,72 +49,126 @@ export default {
 nav {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 64px;
+    background: #242424;
+    border-bottom: 1px solid var(--bordure);
     position: sticky;
     top: 0;
     z-index: 100;
-    justify-content: space-between;
-    padding: 0.8rem 2rem;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    box-shadow: 0 2px 20px rgba(255, 107, 53, 0.2);
+    gap: 1.5rem;
 }
 
-.nav-logo {
-    font-size: 1.5rem;
+/* Logo */
+.logo {
+    font-size: 1.2rem;
     font-weight: 700;
-    color: #FF6B35;
+    color: var(--vert);
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 0.4rem;
+    white-space: nowrap;
 }
+.logo span { color: var(--texte); }
 
-.logo-text {
-    font-family: 'Georgia', serif;
-    letter-spacing: 1px;
-}
-
-.navlink {
+/* Liens du milieu */
+.liens {
     display: flex;
-    gap: 1.2rem;
     list-style: none;
-    margin: 0;
-    padding: 0;
-    align-items: center;
+    gap: 0.3rem;
+    flex: 1;
+    justify-content: center;
 }
-
-.navlink li {
-    color: #f3f3f3;
+.liens li {
+    padding: 0.4rem 0.9rem;
+    border-radius: 8px;
     cursor: pointer;
-    padding: 0.3rem 0.6rem;
-    border-radius: 6px;
-    transition: color 0.2s, background 0.2s;
+    color: var(--texte-doux);
     font-size: 0.95rem;
+    transition: background 0.15s, color 0.15s;
+}
+.liens li:hover { background: var(--bordure); color: var(--texte); }
+
+/* Boutons à droite */
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    white-space: nowrap;
 }
 
-.navlink li:hover {
-    color: #FF6B35;
+/* Bouton panier */
+.btn-panier {
+    background: var(--carte);
+    border: 1px solid var(--bordure);
+    color: var(--texte);
+    padding: 0.45rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background 0.15s;
+}
+.btn-panier:hover { background: var(--bordure); }
+
+.badge {
+    background: var(--vert);
+    color: #fff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.boutonLogin {
-    background-color: #FF6B35 !important;
-    padding: 0.45rem 1.1rem !important;
-    border-radius: 20px !important;
-    color: #fff !important;
-    font-weight: 500;
-    font-size: 0.9rem !important;
+/* Bouton outline */
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--bordure);
+    color: var(--texte);
+    padding: 0.45rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: border-color 0.15s;
 }
+.btn-outline:hover { border-color: #666; }
 
-.boutonLogin:hover {
-    background-color: #e55a24 !important;
-    color: #fff !important;
+/* Bouton vert */
+.btn-vert {
+    background: var(--vert);
+    border: none;
+    color: #fff;
+    padding: 0.45rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    transition: background 0.15s;
 }
+.btn-vert:hover { background: var(--vert-hover); }
 
-.bouton-compte {
-    background-color: #2e7d32 !important;
-    font-size: 0.85rem !important;
+/* Bouton compte */
+.btn-compte {
+    background: #2e4d2e;
+    border: 1px solid var(--vert);
+    color: var(--vert);
+    padding: 0.45rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-family: inherit;
+    transition: background 0.15s;
 }
-
-.bouton-compte:hover {
-    background-color: #1b5e20 !important;
-}
+.btn-compte:hover { background: #3a5e3a; }
 </style>
