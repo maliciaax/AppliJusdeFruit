@@ -138,8 +138,8 @@ body {
 
 /* Variables globales */
 :root {
-    --vert:        #4caf50;
-    --vert-hover:  #3d9e41;
+    --vert:        #578040;
+    --vert-hover:  rgb(70, 106, 50);
     --fond:        #1e1e1e;
     --carte:       #2a2a2a;
     --bordure:     #3a3a3a;

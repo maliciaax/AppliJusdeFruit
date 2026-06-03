@@ -2,7 +2,7 @@
     <nav>
         <!-- Logo -->
         <div class="logo" @click="$emit('naviguer', 'accueil')">
-            🍊 <span>JusFruit</span>
+            🍊 <span>JuicePackaging</span>
         </div>
 
         <!-- Liens -->
