@@ -15,7 +15,6 @@
         <!-- Contenu -->
         <template v-else-if="profil">
 
-            <!-- En-tête -->
             <div class="profil-header">
                 <div class="avatar">{{ initiales }}</div>
                 <div>
@@ -24,7 +23,7 @@
                 </div>
             </div>
 
-            <!-- Fiche infos -->
+            <!-- Fiche info -->
             <section class="carte">
                 <h2>Mes informations</h2>
                 <div class="grille-infos">
@@ -55,7 +54,6 @@
                 </div>
             </section>
 
-            <!-- Zone danger -->
             <section class="carte carte-danger">
                 <h2>⚠️ Zone sensible</h2>
                 <p class="danger-desc">
@@ -63,12 +61,12 @@
                     Toutes vos commandes et données personnelles seront effacées de notre base.
                 </p>
 
-                <!-- Étape 1 : bouton d'amorce -->
+                <!-- demande suppression -->
                 <button v-if="!confirmerSuppression" class="btn-danger" @click="confirmerSuppression = true">
                     Supprimer mon compte
                 </button>
 
-                <!-- Étape 2 : confirmation -->
+                <!-- confirmation -->
                 <div v-else class="confirmation-bloc">
                     <p class="confirmation-texte">Êtes-vous sûr(e) ? Cette action est irréversible.</p>
                     <div class="confirmation-actions">

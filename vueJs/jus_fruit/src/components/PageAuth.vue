@@ -87,7 +87,10 @@ export default {
     methods: {
         seConnecter() {
             this.erreurConnexion = null
-            if (!this.connexion.mail || !this.connexion.mdp) { this.erreurConnexion = 'Veuillez remplir tous les champs.'; return }
+            if (!this.connexion.mail || !this.connexion.mdp) {
+                this.erreurConnexion = 'Veuillez remplir tous les champs.'; 
+                return
+            }
             this.chargement = true
             fetch('/client/connexion', {
                 method: 'POST',
@@ -97,10 +100,16 @@ export default {
             .then(res => res.json())
             .then(data => {
                 this.chargement = false
-                if (data[0] === true) { this.$emit('connexionReussie', data[1]) }
-                else { this.erreurConnexion = 'Email ou mot de passe incorrect.' }
+                if (data[0] === true) { 
+                    this.$emit('connexionReussie', data[1])
+                }
+                else {
+                    this.erreurConnexion = 'Email ou mot de passe incorrect.'
+                }
             })
-            .catch(() => { this.chargement = false; this.erreurConnexion = 'Erreur de connexion au serveur.' })
+            .catch(() => { 
+                this.chargement = false; 
+                this.erreurConnexion = 'Erreur de connexion au serveur.' })
         },
         sInscrire() {
             this.erreurInscription = null

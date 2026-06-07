@@ -92,7 +92,9 @@ export default {
             this.pageCourante = 'panier'
             window.scrollTo({ top: 0, behavior: 'smooth' })
         },
-        supprimerArticle(index) { this.panier.splice(index, 1) },
+        supprimerArticle(index) { 
+            this.panier.splice(index, 1)
+        },
         mettreAJourQte({ index, qte }) {
             this.panier[index].qte = qte
             const a = this.panier[index]
@@ -101,7 +103,7 @@ export default {
         passerCommande() {
             if (!this.clientConnecte) { this.pageCourante = 'connexion'; return }
             const lignes = this.panier.map(a => ({ idJus: a.jus.idJus, idEmb: a.emballage.idEmb, qte: String(a.qte) }))
-            fetch('http://localhost:3000/commande', {
+            fetch('/commande', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ idClient: this.clientConnecte.idClient, lignes })
@@ -110,10 +112,12 @@ export default {
             .then(data => {
                 if (data[0] === true) {
                     this.derniereCommande = data[1]
-                    this.panierConfirme = [...this.panier]
+                    this.panierConfirme = [...this.panier] //...créer une copie du panier
                     this.panier = []
                     this.pageCourante = 'confirmation'
-                } else { alert('Erreur lors de la commande.') }
+                } else {
+                    alert('Erreur lors de la commande.')
+                }
             })
             .catch(() => alert('Erreur de connexion au serveur.'))
         },
@@ -121,7 +125,10 @@ export default {
             this.clientConnecte = client
             this.pageCourante = this.panier.length > 0 ? 'panier' : 'accueil'
         },
-        deconnecter() { this.clientConnecte = null; this.pageCourante = 'accueil' },
+        deconnecter() {
+            this.clientConnecte = null;
+            this.pageCourante = 'accueil'
+        },
         onCompteSuprime() {
             this.clientConnecte = null
             this.panier = []
