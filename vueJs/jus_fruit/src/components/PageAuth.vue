@@ -89,7 +89,7 @@ export default {
             this.erreurConnexion = null
             if (!this.connexion.mail || !this.connexion.mdp) { this.erreurConnexion = 'Veuillez remplir tous les champs.'; return }
             this.chargement = true
-            fetch('http://localhost:3000/client/connexion', {
+            fetch('/client/connexion', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ mailClient: this.connexion.mail, mdp: this.connexion.mdp })
@@ -108,7 +108,7 @@ export default {
             const { nom, prenom, mail, tel, adresse, cp, mdp } = this.inscription
             if (!nom || !prenom || !mail || !tel || !adresse || !cp || !mdp) { this.erreurInscription = 'Veuillez remplir tous les champs.'; return }
             this.chargement = true
-            fetch('http://localhost:3000/client/inscription', {
+            fetch('/client/inscription', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ nomClient: nom, prenomClient: prenom, mailClient: mail, numClient: parseInt(tel), adresseClient: adresse, cdpClient: parseInt(cp), mdp })

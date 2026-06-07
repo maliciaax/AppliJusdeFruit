@@ -20,10 +20,21 @@
                 <span v-if="nbPanier > 0" class="badge">{{ nbPanier }}</span>
             </button>
 
-            <!-- Connecté -->
-            <button v-if="client" class="btn-compte" @click="$emit('deconnexion')">
-                👤 {{ client.prenomClient }} — Déconnexion
-            </button>
+            <!-- Connecté : menu déroulant -->
+            <div v-if="client" class="menu-compte" ref="menuRef">
+                <button class="btn-compte" @click="menuOuvert = !menuOuvert">
+                    👤 {{ client.prenomClient }} ▾
+                </button>
+                <div v-if="menuOuvert" class="dropdown">
+                    <div class="dropdown-item" @click="naviguerEtFermer('mesCommandes')">
+                        📦 Mes commandes
+                    </div>
+                    <div class="dropdown-separator"></div>
+                    <div class="dropdown-item item-danger" @click="deconnexion">
+                        🚪 Déconnexion
+                    </div>
+                </div>
+            </div>
 
             <!-- Pas connecté -->
             <template v-else>
@@ -38,10 +49,34 @@
 export default {
     name: 'NavBar',
     props: {
-        client:    { type: Object,  default: null },
-        nbPanier:  { type: Number,  default: 0 }
+        client:   { type: Object, default: null },
+        nbPanier: { type: Number, default: 0 }
     },
-    emits: ['naviguer', 'deconnexion']
+    emits: ['naviguer', 'deconnexion'],
+    data() {
+        return { menuOuvert: false }
+    },
+    mounted() {
+        document.addEventListener('click', this.fermerMenuExterieur)
+    },
+    beforeUnmount() {
+        document.removeEventListener('click', this.fermerMenuExterieur)
+    },
+    methods: {
+        naviguerEtFermer(page) {
+            this.menuOuvert = false
+            this.$emit('naviguer', page)
+        },
+        deconnexion() {
+            this.menuOuvert = false
+            this.$emit('deconnexion')
+        },
+        fermerMenuExterieur(e) {
+            if (this.$refs.menuRef && !this.$refs.menuRef.contains(e.target)) {
+                this.menuOuvert = false
+            }
+        }
+    }
 }
 </script>
 
@@ -60,7 +95,6 @@ nav {
     gap: 1.5rem;
 }
 
-/* Logo */
 .logo {
     font-size: 1.2rem;
     font-weight: 700;
@@ -73,7 +107,6 @@ nav {
 }
 .logo span { color: var(--texte); }
 
-/* Liens du milieu */
 .liens {
     display: flex;
     list-style: none;
@@ -91,7 +124,6 @@ nav {
 }
 .liens li:hover { background: var(--bordure); color: var(--texte); }
 
-/* Boutons à droite */
 .actions {
     display: flex;
     align-items: center;
@@ -99,7 +131,6 @@ nav {
     white-space: nowrap;
 }
 
-/* Bouton panier */
 .btn-panier {
     background: var(--carte);
     border: 1px solid var(--bordure);
@@ -129,7 +160,54 @@ nav {
     justify-content: center;
 }
 
-/* Bouton outline */
+/* Menu déroulant compte */
+.menu-compte { position: relative; }
+
+.btn-compte {
+    background: #2e4d2e;
+    border: 1px solid var(--vert);
+    color: var(--vert);
+    padding: 0.45rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+.btn-compte:hover { background: #3a5e3a; }
+
+.dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background: #2a2a2a;
+    border: 1px solid var(--bordure);
+    border-radius: 10px;
+    min-width: 180px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    overflow: hidden;
+    z-index: 200;
+}
+.dropdown-item {
+    padding: 0.65rem 1rem;
+    font-size: 0.9rem;
+    color: var(--texte);
+    cursor: pointer;
+    transition: background 0.12s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.dropdown-item:hover { background: var(--bordure); }
+.dropdown-separator {
+    height: 1px;
+    background: var(--bordure);
+    margin: 0.2rem 0;
+}
+.item-danger { color: #f87171; }
+.item-danger:hover { background: #3a1a1a; }
+
+/* Boutons non connecté */
 .btn-outline {
     background: transparent;
     border: 1px solid var(--bordure);
@@ -143,7 +221,6 @@ nav {
 }
 .btn-outline:hover { border-color: #666; }
 
-/* Bouton vert */
 .btn-vert {
     background: var(--vert);
     border: none;
@@ -157,18 +234,4 @@ nav {
     transition: background 0.15s;
 }
 .btn-vert:hover { background: var(--vert-hover); }
-
-/* Bouton compte */
-.btn-compte {
-    background: #2e4d2e;
-    border: 1px solid var(--vert);
-    color: var(--vert);
-    padding: 0.45rem 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-family: inherit;
-    transition: background 0.15s;
-}
-.btn-compte:hover { background: #3a5e3a; }
 </style>

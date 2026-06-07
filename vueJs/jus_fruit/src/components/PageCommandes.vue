@@ -69,7 +69,7 @@ export default {
     },
     methods: {
         chargerCommandes() {
-            fetch(`http://localhost:3000/commandes/${this.client.idClient}`)
+            fetch(`/commandes/${this.client.idClient}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data[0]) { this.commandes = data[1] }

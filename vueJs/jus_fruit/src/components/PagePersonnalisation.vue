@@ -143,7 +143,7 @@ export default {
     },
     methods: {
         chargerEmballages() {
-            fetch('http://localhost:3000/emballages')
+            fetch('/emballages')
                 .then(res => res.json())
                 .then(data => {
                     if (data[0] === true) {

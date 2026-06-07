@@ -42,7 +42,7 @@ export default {
     },
     methods: {
         chargerJus() {
-            fetch('http://localhost:3000/jus')
+            fetch('/jus')
                 .then(res => res.json())
                 .then(data => {
                     if (data[0] === true) { this.listJus = data[1] }

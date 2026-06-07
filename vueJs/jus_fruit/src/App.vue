@@ -47,14 +47,14 @@
 </template>
 
 <script>
-import NavBar             from './components/NavBar.vue'
-import PageAccueil        from './components/PageAccueil.vue'
-import PageBoutique       from './components/PageBoutique.vue'
+import NavBar               from './components/NavBar.vue'
+import PageAccueil          from './components/PageAccueil.vue'
+import PageBoutique         from './components/PageBoutique.vue'
 import PagePersonnalisation from './components/PagePersonnalisation.vue'
-import PagePanier         from './components/PagePanier.vue'
-import PageAuth           from './components/PageAuth.vue'
-import PageCommandes      from './components/PageCommandes.vue'
-import PageConfirmation   from './components/PageConfirmation.vue'
+import PagePanier           from './components/PagePanier.vue'
+import PageAuth             from './components/PageAuth.vue'
+import PageCommandes        from './components/PageCommandes.vue'
+import PageConfirmation     from './components/PageConfirmation.vue'
 
 export default {
     name: 'App',
@@ -76,7 +76,9 @@ export default {
     },
     methods: {
         naviguer(page) {
-            if (page === 'mesCommandes' && !this.clientConnecte) { this.pageCourante = 'connexion'; return }
+            if ((page === 'mesCommandes' || page === 'profil') && !this.clientConnecte) {
+                this.pageCourante = 'connexion'; return
+            }
             this.pageCourante = page
             window.scrollTo({ top: 0, behavior: 'smooth' })
         },
@@ -119,7 +121,12 @@ export default {
             this.clientConnecte = client
             this.pageCourante = this.panier.length > 0 ? 'panier' : 'accueil'
         },
-        deconnecter() { this.clientConnecte = null; this.pageCourante = 'accueil' }
+        deconnecter() { this.clientConnecte = null; this.pageCourante = 'accueil' },
+        onCompteSuprime() {
+            this.clientConnecte = null
+            this.panier = []
+            this.pageCourante = 'accueil'
+        }
     }
 }
 </script>
